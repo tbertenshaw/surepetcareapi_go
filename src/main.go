@@ -2,44 +2,43 @@ package main
 
 import (
 	"fmt"
+	//"helpers"
 	"log"
 	"net/http"
 	"strings"
+	"tbertenshaw/surepetapi_go/helpers"
+	"tbertenshaw/surepetapi_go/handlers"
 )
+
 var bearer string
 var urlDoorRoot string
 var urlPetStatusRoot string
+var urlPetLocationRoot string
+var appConfig helpers.Cfg
 
 func main() {
-	bearer = AppConfig.BearerToken
-	urlDoorRoot = AppConfig.UrlDoorRoot
-	urlPetStatusRoot = AppConfig.UrlPetStatusRoot
-	http.HandleFunc("/", handlerRoot)
-	http.HandleFunc("/door", handlerDoor)
-	http.HandleFunc("/pet", handlerPet)
+	initConfig()
+	handlers.InitHandlers()
 	log.Fatal(http.ListenAndServe("0.0.0.0:9090", nil))
 }
 
-func handlerRoot(w http.ResponseWriter, r *http.Request) {
-	method := r.Method
-	log.Printf("%s from %s, ",method, r.RemoteAddr)
-	fmt.Fprint(w, "No functions here!")
+func initConfig() {
+	appConfig = helpers.AppConfig.ReadConfig()
+	bearer = appConfig.BearerToken
+	urlDoorRoot = appConfig.UrlDoorRoot
+	urlPetStatusRoot = appConfig.UrlPetStatusRoot
+	urlPetLocationRoot = appConfig.UrlPetLocationRoot
 }
 
-func handlerDoor(w http.ResponseWriter, r *http.Request) {
-	method := r.Method
-	log.Printf("%s from %s, ",method, r.RemoteAddr)
-	var response = getDoorResponse()
 
-	fmt.Fprintf(w, "Penguin portal Status is : %s", response)
-}
 
-func handlerPet(w http.ResponseWriter, r *http.Request) {
-	method := r.Method
-	log.Printf("%s from %s, ",method, r.RemoteAddr)
-	var response = getPetResponse()
-	log.Printf("call to pet: %s", response)
-	fmt.Fprintf(w, " %s", response)
+func postPetLocationResponse() (status string) {
+	petResponse := PetResponse{}
+	petLocation := PetLocation{Where: Outside, Since: "2021-11-11 16:24:01"}
+
+	petResponse.PostPetLocation(bearer, Tia, petLocation)
+
+	return "nice"
 }
 
 func getDoorResponse() (status string) {

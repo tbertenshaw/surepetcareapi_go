@@ -1,4 +1,4 @@
-module example.com/doorstatus
+module tbertenshaw/surepetapi_go
 
 go 1.17
 

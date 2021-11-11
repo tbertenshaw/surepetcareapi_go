@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
-	"time"
-	"strings"
 	"strconv"
+	"strings"
+	"tbertenshaw/surepetapi_go/helpers"
+	"time"
 )
 
 type DoorResponse struct {
@@ -37,15 +37,7 @@ const (
 
 func (a *DoorResponse) GetDoorStatus(bearer string) (lockstatus DoorState) {
 
-	c := http.Client{Timeout: time.Duration(1) * time.Second}
-	req, err := http.NewRequest("GET", urlDoorRoot, nil)
-	req.Header.Set("Authorization", bearer)
-	if err != nil {
-		fmt.Printf("Error %s", err)
-		return
-	}
-
-	resp, err := c.Do(req)
+	resp, err := helpers.GetResponse(urlDoorRoot,bearer )
 
 	if err != nil {
 		fmt.Printf("Error %s", err)
@@ -83,7 +75,7 @@ func getCurfewStatus(curfews []Curfew) (locked bool) {
 		}
 		hr, min, _ := time.Now().Clock()
 		timeNow := (hr *100) + min
-		const layout = "17:30"
+
 		locktime,_ := strconv.Atoi(strings.ReplaceAll(curfew.Lock_time,":",""))
 
 		unlocktime,_ := strconv.Atoi(strings.ReplaceAll(curfew.Unlock_time,":",""))
